@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "cookies_manager/version"
 
 Gem::Specification.new do |s|
-  s.name        = "cookies_manager"
+  s.name        = "CookiesManager"
   s.version     = CookiesManager::VERSION
   s.authors     = ["Christophe Levand"]
   s.email       = ["levand@free.fr"]
