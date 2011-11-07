@@ -11,6 +11,10 @@ In <b>Rails 2</b>, add this to your environment.rb file.
 
   config.gem "cookies_manager"
 
+Alternatively, you can install it as a plugin:
+
+  script/plugin install git@github.com:RStrike/CookiesManager.git
+
 == Getting started
 
 === Basic usage
@@ -30,7 +34,7 @@ Next, you can refer the CookiesManager instance by calling the +cookies_manager+
 
 === Supported options
 
-All supported options are fully described along with some examples in the {file:../CookiesManager/Base.html CookiesManager::Base documentation}. 
+All supported options are fully described along with some examples in the {CookiesManager::Base documentation}[http://rubydoc.info/github/RStrike/CookiesManager/master/CookiesManager/Base]. 
 
 == When to use it?
 
@@ -55,12 +59,12 @@ than the session length, such as user display preferences.
 
 == Running the tests
 
-RSpec 2 is used for testing. To get the specs running, check {file:spec/README.rdoc spec/README}.
+RSpec 2 is used for testing. To get the specs running, check {spec/README}[https://github.com/RStrike/CookiesManager/blob/master/spec/README.rdoc].
 
 == Coming up next
 - Adapt the gem to support Ruby 1.9.x and Rails 3.
 
 == Changes
 
-:include:CHANGELOG.rdoc
+Check the {CHANGELOG}[https://github.com/RStrike/CookiesManager/blob/master/CHANGELOG.rdoc].
 
