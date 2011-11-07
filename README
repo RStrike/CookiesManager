@@ -1,0 +1,66 @@
+= CookiesManager
+
+CookiesManager is a simple tool that provides a convenient way to manage any kind of data in the cookies (strings, arrays, hashes, etc.):
+- The data you store in the cookies is automatically marshalled, zipped, and base64-encoded.
+- The data you ask to retrieve from the cookies is read from a cache, which spares the need for reverse transformation as long as the cache is in sync with the cookies. When the cache is out of sync, CookiesManager automatically resynchronizes the cache by reading the data from the cookies and processing reverse transformation (base64-decoding, unzipping, unmarshalling).
+- The cache is defined somehow at the controller instance level. Thus, each HTTP request has its own cache for its whole lifetime.
+
+== Installation
+
+In <b>Rails 2</b>, add this to your environment.rb file.
+
+  config.gem "cookies_manager"
+
+== Getting started
+
+=== Basic usage
+
+To activate the feature, simply call +load_cookies_manager+ on your controller class:
+
+ class YourController < ActionController::Base
+   load_cookies_manager # This instantiates a new CookiesManager accessible through the cookies_manager helper method
+
+<i>Hint: You can call +load_cookies_manager+ on your ApplicationController class to enable the feature for all your controllers.</i>
+
+Next, you can refer the CookiesManager instance by calling the +cookies_manager+ helper method from your controllers and views:
+
+ len_bytes = cookies_manager.write('a_key', ['an', 'array']) # store the array as is in the cache, and as a base-64 string in the cookies
+ my_array = cookies_manager.read('a_key') # retrieves the array from the cache (or from the cookies if the cache is not in sync)
+ my_deleted_array = cookies_manager.delete('a_key') # removes the array from both the cookies and the cache
+
+=== Supported options
+
+All supported options are fully described along with some examples in the {file:../CookiesManager/Base.html CookiesManager::Base documentation}. 
+
+== When to use it?
+
+=== CookiesManager vs native cookies
+
+Whenever you need to store in the cookies some data somewhat more complex than just simple US-ASCII strings (ex: hashes, arrays, etc.), the CookiesManager may be
+more convenient to use than the native cookies hash. 
+
+Note that you can use both CookiesManager and the cookies hash. If needed, the CookiesManager cache is automatically resynchronized from the cookies.
+
+=== CookiesManager vs session
+
+Whenever a cookies storage management is more suited to your needs than a session storage management, the CookiesManager may be a good option if the data you want to
+store is more complex than just simple US-ASCII strings. For example, there may be times when you need to persist in the cookies some non-sensitive data much longer
+than the session length, such as user display preferences.
+
+== Important notes
+
+- If your application is multi-threaded, using CookiesManager is threadsafe as long as your threads refer the same CookiesManager instance.
+- Unless you know what you are really doing, do not store large data in your cookies, since these are included in HTTP request headers.
+- Do not store model objects in cookies (nor in session). For more explanation, check {http://railscasts.com/episodes/13-dangers-of-model-in-session Ryan Bates's screencast about dangers of model in session}.
+
+== Running the tests
+
+RSpec 2 is used for testing. To get the specs running, check {file:spec/README spec/README}.
+
+== Coming up next
+- Adapt the gem to support Ruby 1.9.x and Rails 3.
+
+== Changes
+
+{include:file:CHANGELOG}
+
