@@ -20,7 +20,7 @@ describe CookiesManager::Base do
     @simple_data = "this is a simple string"
   end
   
-  let(:cookies) { TestController.new.cookies }
+  let(:cookies) { TestController.new.instance_eval { cookies } }
   subject { CookiesManager::Base.new(cookies) }  
   
   describe "#write" do

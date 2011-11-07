@@ -13,8 +13,7 @@ end
 
  # A test controller with a cookies hash (this works in rails 2.3.14 but needs to be adapted for versions of rails >= 3.x.x)
 class TestController < ActionController::Base
-  attr_accessor :cookies
-  
+
   def request 
     @request ||= ActionController::Request.new('test')
   end
@@ -25,5 +24,10 @@ class TestController < ActionController::Base
   
   def initialize
     self.cookies = ActionController::CookieJar.new(self)
-  end     
+  end
+  
+  protected
+  
+  attr_accessor :cookies
+       
 end

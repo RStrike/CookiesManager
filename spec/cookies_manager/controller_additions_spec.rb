@@ -18,7 +18,7 @@ describe CookiesManager::ControllerAdditions do
       controller.cookies_manager.should equal controller.cookies_manager #strict equality required 
     end
     it "the CookiesManager object should be based on the native controller's cookies hash" do
-      controller.cookies_manager.cookies.should equal controller.cookies #strict equality required
+      controller.cookies_manager.cookies.should equal controller.instance_eval { cookies } #strict equality required
     end
   end
 end

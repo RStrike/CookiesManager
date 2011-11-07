@@ -135,7 +135,7 @@ module CookiesManager
         result = opts[:unpack] ? unpack(data_from_cookies) : data_from_cookies # read from cookies
         # updates the cache
         cache[key][:packed_data] = data_from_cookies
-        cache[key][:unpacked] = result
+        cache[key][:unpacked_data] = result
       end
       return result
     end

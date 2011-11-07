@@ -15,7 +15,7 @@ module CookiesManager
     def load_cookies_manager
       self.before_filter do |controller|
         # defines a CookiesManager instance variable, based on the cookies hash
-        controller.instance_variable_set(:@_cookies_manager, CookiesManager::Base.new(controller.cookies))
+        controller.instance_variable_set(:@_cookies_manager, CookiesManager::Base.new(controller.instance_eval { cookies } ))
         # wraps the instance variable in a the +cookies_manager+ method
         define_method :cookies_manager, proc { controller.instance_variable_get(:@_cookies_manager) }
         # makes the +cookies_manager+ method available to all views as a helper method
