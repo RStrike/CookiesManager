@@ -62,5 +62,5 @@ RSpec 2 is used for testing. To get the specs running, check {file:spec/README.r
 
 == Changes
 
-{include:file:CHANGELOG.rdoc}
+:include:CHANGELOG.rdoc
 
