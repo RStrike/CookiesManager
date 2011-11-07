@@ -51,16 +51,16 @@ than the session length, such as user display preferences.
 
 - If your application is multi-threaded, using CookiesManager is threadsafe as long as your threads refer the same CookiesManager instance.
 - Unless you know what you are really doing, do not store large data in your cookies, since these are included in HTTP request headers.
-- Do not store model objects in cookies (nor in session). For more explanation, check {http://railscasts.com/episodes/13-dangers-of-model-in-session Ryan Bates's screencast about dangers of model in session}.
+- Do not store model objects in cookies (nor in session). For more explanation, check {Ryan Bates's screencast about dangers of model in session}[http://railscasts.com/episodes/13-dangers-of-model-in-session].
 
 == Running the tests
 
-RSpec 2 is used for testing. To get the specs running, check {file:spec/README spec/README}.
+RSpec 2 is used for testing. To get the specs running, check {file:spec/README.rdoc spec/README}.
 
 == Coming up next
 - Adapt the gem to support Ruby 1.9.x and Rails 3.
 
 == Changes
 
-{include:file:CHANGELOG}
+{include:file:CHANGELOG.rdoc}
 
