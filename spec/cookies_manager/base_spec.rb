@@ -86,7 +86,7 @@ describe CookiesManager::Base do
     describe "#read some data previously stored directly into the cookies hash" do
       context "when reading non-nil data" do
         before { cookies['my_key'] = {:value => @complex_data} }
-        specify { subject.read('my_key').should eql @complex_data }
+        specify { subject.read('my_key', :skip_unpack => true).should eql @complex_data }
       end
       context "when reading a nil value" do
         before { cookies['my_key'] = {:value => nil } }
@@ -94,13 +94,13 @@ describe CookiesManager::Base do
       end
       context "when reading some data stored with a nil key" do
         before { cookies[nil] = {:value => @complex_data} }
-        specify { subject.read(nil).should eql @complex_data }
-        specify { subject.read('').should eql @complex_data }
+        specify { subject.read(nil, :skip_unpack => true).should eql @complex_data }
+        specify { subject.read('', :skip_unpack => true).should eql @complex_data }
       end
       context "when reading some data stored with an empty string key" do
         before { cookies[''] = {:value => @complex_data} }
-        specify { subject.read(nil).should eql @complex_data }
-        specify { subject.read('').should eql @complex_data }
+        specify { subject.read(nil, :skip_unpack => true).should eql @complex_data }
+        specify { subject.read('', :skip_unpack => true).should eql @complex_data }
       end
     end
     describe "#read some data previously stored through CookiesManager but later modified directly inside the cookies hash" do
@@ -109,7 +109,7 @@ describe CookiesManager::Base do
           subject.write('my_key', @simple_data)
           cookies['my_key'] = {:value => (@new_simple_data = "some new data")}
         end
-        specify { subject.read('my_key').should eql @new_simple_data }
+        specify { subject.read('my_key', :skip_unpack => true).should eql @new_simple_data }
       end
       context "when reading some complex data" do
         before do
@@ -117,8 +117,8 @@ describe CookiesManager::Base do
           @new_complex_data = @complex_data.merge(:some_new_item => 'it modifies the data')
           cookies['my_key'] = {:value => pack(@new_complex_data)}
         end
-        specify { subject.read('my_key', :unpack => true).should eql @new_complex_data }
-        specify { unpack(subject.read('my_key')).should eql @new_complex_data } #if :unpack option is omitted, needs to unpack manually
+        specify { subject.read('my_key').should eql @new_complex_data }
+        specify { unpack(subject.read('my_key', :skip_unpack => true)).should eql @new_complex_data } #if :skip_unpack option is set, we need to unpack the data manually
       end
     end
     describe "read with key symbol/string indifferent access (ex: :foo, 'foo')" do
@@ -141,7 +141,7 @@ describe CookiesManager::Base do
   describe "#delete" do
     describe "#delete existing data" do
       shared_examples_for "when deleting existing data" do
-        before { @result = subject.delete('my_key') }
+        before { @result = subject.delete('my_key', :skip_unpack => true) }
         specify { @result.should eql @complex_data }
         specify { subject.read('my_key').should be_nil }
       end
@@ -203,6 +203,49 @@ describe CookiesManager::Base do
       specify { subject.delete('my_key', :unpack => true).should eql @complex_data }
       specify { subject.delete('my_key', 'unpack' => true).should eql @complex_data }
     end
+  end
+  
+  describe "#cache management" do
+    shared_examples_for 'when accessing the data' do
+      context 'when reading' do
+        specify { subject.read('my_key').should eql @complex_data }
+      end
+      context 'when deleting' do
+        specify { subject.delete('my_key').should eql @complex_data }
+      end
+    end  
+    describe "#cache in sync with the cookies" do
+      describe "#accessing some data that has been read at least once by the CookiesManager" do
+        before do
+          cookies['my_key'] = pack(@complex_data)
+          subject.read('my_key').should eql @complex_data # this should store the data in the cache, thus sparing the need for future unmarshalling
+          dont_allow(Marshal).load # this makes sure unmarshalling is never done (i.e. the cache is used)
+        end
+        it_should_behave_like 'when accessing the data'
+      end 
+      describe "#accessing some data that has been written through the CookiesManager" do
+        before do
+          subject.write('my_key', @complex_data) # this should store the data in the cache, thus sparing the need for future unmarshalling
+          dont_allow(Marshal).load # this makes sure unmarshalling is never done (i.e. the cache is used)
+        end 
+        it_should_behave_like 'when accessing the data'
+      end
+    end
+    describe "#cache out of sync" do
+      before do
+        subject.write('my_key', @original_data = ['my', 'original', 'array'])
+        cookies['my_key'] = pack(@complex_data) # this causes the cache to be out of sync, thus causing future reads to unmarshall the data from the cookies 
+        mock.proxy(Marshal).load.with_any_args # this makes sure unmarshalling is invoked
+      end
+      it_should_behave_like 'when accessing the data'      
+      describe "#automatic cache resynchronization on read" do
+        before do 
+          subject.read('my_key').should eql @complex_data # this causes unmarshalling, and cache resynchronization
+          dont_allow(Marshal).load # this makes sure we don't unmarshall anymore at this point (i.e. the cache is now in sync and can be used)
+        end 
+        specify { subject.read('my_key').should eql @complex_data}
+      end
+    end  
   end
   
   describe "#multi-threading", :slow do
