@@ -7,3 +7,7 @@
 
 * Initial release + documentation compatibility fixes 
 
+0.2.0 (Nov 08, 2011)
+
+* Simplified usage: in reads operations, unpacks the data by default
+* Added cache management rspecs
