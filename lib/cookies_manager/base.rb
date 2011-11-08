@@ -23,19 +23,16 @@ module CookiesManager
     end
 
     # Reads the data object corresponding to the key.
+    # - Reads from the cache, or from the cookies if the cache is not in sync.
+    # - Cache desynchronization can occur when the cookies hash has been modified directly, in which case the cache is automatically re-synchronized. 
+    # - When the data needs to be retrieved from the cookies, it is successively base64-decoded, unzipped, and unmarshalled by default. If you consider your data does not need to be transformed, you can disable this feature by passing the +:skip_unpack+ option.
     #
-    # Reads from the cache instance variable, or from the cookies if the cache is not in sync with the cookies.
-    # Cache desynchronization can occur when the cookies hash is modified directly.
-    # The cache is automatically re-synchronized if out of sync.
-    #
-    # If option +:unpack+ is set to true, data will be successively base64-decoded, unzipped, and unmarshalled. This option is used only when the data
-    # is retrieved from the cookies hash (i.e. the cache is not in sync with the cookies).
-    #
-    # === Example: 
+    # === Examples: 
     #    data = cookies_manager.read('my_key') # reads the data associated with the key 'my_key'
+    #    raw_data = cookies_manager.read('my_key', :skip_unpack => true) # reads without unpacking
     #
     # @param [String or Symbol] key a unique key corresponding to the data to read
-    # @option opts [Boolean] :unpack if true, successively base64-decode, unzip, and unmarshall the data. Default is false.
+    # @option opts [Boolean] :skip_unpack if true, DO NOT base64-decode, unzip, nor unmarshall the data. Default is false. This option is used only when the cache is out of sync.
     # @return [Object] the data associated with the key 
     #
     def read(key, opts = {})
@@ -47,10 +44,8 @@ module CookiesManager
     end
     
     # Writes the data object and associates it with the key.
-    #
-    # Data is stored in both the cookies and the cache.
-    # 
-    # By default, before being stored in the cookies, data is marshalled, zipped, and base64-encoded. Although this feature is recommended, you can disable it by passing the option +:skip_pack+ if you consider your data can be stored as is in the cookies (ex: US-ASCII string).
+    # - Data is stored in both the cookies and the cache.
+    # - By default, before being stored in the cookies, data is marshalled, zipped, and base64-encoded. Although this feature is recommended, you can disable it by passing the option +:skip_pack+ if you consider your data can be stored as is in the cookies (ex: US-ASCII string).
     #
     # === Examples:
     #    
@@ -85,14 +80,13 @@ module CookiesManager
       return result[:value].try(:bytesize) || 0
     end
         
-    # Deletes the data corresponding to the key.
-    #
-    # Removes the data from both the cookies and the cache, and return it.
-    # The returned value is read from the cache if this is in sync with the cookies. Otherwise, the data is read from the cookies, in which case it is successively
-    # base64-decoded, unzipped, and unmarshalled if option +:unpack+ is set to true.
+    # Deletes the data corresponding to the key, and return it.
+    # - Removes the data from both the cookies and the cache.
+    # - The returned value is read from the cache if this is in sync with the cookies. Otherwise, the data is read from the cookies, in which case it is successively base64-decoded, unzipped, and unmarshalled by default. If you consider your data does not need to be transformed, you can disable this feature by passing the +:skip_unpack+ option.
     #
     # === Example:
-    #     data = cookies_manager.delete('my_key')  # deletes the data associated with the key 'my_key'
+    #     data = cookies_manager.delete('my_key')  # deletes and returns the data associated with the key 'my_key'
+    #     raw_data = cookies_manager.delete('my_key', :skip_unpack => true)  # same as above except that the returned data is not unpacked
     #
     # @param [String or Symbol] key a unique key corresponding to the data to delete   
     # @option opts (see #read)
@@ -132,7 +126,7 @@ module CookiesManager
       if cache[key][:packed_data] == data_from_cookies # checks whether cache is in sync with cookies
         result = cache[key][:unpacked_data] # reads from cache
       else # cache not in sync
-        result = opts[:unpack] ? unpack(data_from_cookies) : data_from_cookies # read from cookies
+        result = opts[:skip_unpack] ? data_from_cookies : unpack(data_from_cookies) # read from cookies
         # updates the cache
         cache[key][:packed_data] = data_from_cookies
         cache[key][:unpacked_data] = result

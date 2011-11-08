@@ -29,7 +29,9 @@ To activate the feature, simply call +load_cookies_manager+ on your controller c
 Next, you can refer the CookiesManager instance by calling the +cookies_manager+ helper method from your controllers and views:
 
  len_bytes = cookies_manager.write('a_key', ['an', 'array']) # store the array as is in the cache, and as a base-64 string in the cookies
+ 
  my_array = cookies_manager.read('a_key') # retrieves the array from the cache (or from the cookies if the cache is not in sync)
+ 
  my_deleted_array = cookies_manager.delete('a_key') # removes the array from both the cookies and the cache
 
 === Supported options
