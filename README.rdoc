@@ -65,6 +65,7 @@ RSpec 2 is used for testing. To get the specs running, check {spec/README}[https
 
 == Coming up next
 - Adapt the gem to support Ruby 1.9.x and Rails 3.
+- Add integrity-checking/encryption mechanisms
 
 == Changes
 
