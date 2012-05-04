@@ -1,9 +1,6 @@
-require 'aquarium'
-
 module CookiesManager
   # The base class of CookiesManager 
   class Base
-    include Aquarium::DSL # AOP Filters are defined at the end of the class
     
     attr_accessor :cookies # The cookies hash to be based on
     
@@ -36,6 +33,7 @@ module CookiesManager
     # @return [Object] the data associated with the key 
     #
     def read(key, opts = {})
+      opts.symbolize_keys!
       result = nil
       getMutex(key).synchronize do
         result = read_from_cache_or_cookies(key, opts)  
@@ -68,12 +66,13 @@ module CookiesManager
     # @return [Integer] the number of bytes written in the cookies
     #
     def write(key, data, opts = {})
+      opts.symbolize_keys!
       unpacked_data = data
       data = pack(data) unless opts[:skip_pack]
       result = nil
       getMutex(key).synchronize do
         cache[key] ||= {}
-        result = cookies[key] = {:value => data}.merge(opts) # store the packed data in the cookies hash
+        result = cookies.signed[key] = {:value => data}.merge(opts) # store the packed data in the cookies hash
         cache[key][:unpacked_data] = unpacked_data # store the unpacked data in the cache for fast read in the read method
         cache[key][:packed_data] = data # store the packed data in the cache for fast change diff in the read method
       end
@@ -93,6 +92,7 @@ module CookiesManager
     # @return (see #read) 
     #
     def delete(key, opts = {})
+      opts.symbolize_keys!
       result = nil
       getMutex(key).synchronize do
         result = read_from_cache_or_cookies(key, opts)
@@ -121,7 +121,7 @@ module CookiesManager
     # reads from the cache if in sync. Otherwise, reads from the cookies and resynchronizes the cache for the given key
     def read_from_cache_or_cookies(key, opts)
       result = nil
-      data_from_cookies = cookies[key]
+      data_from_cookies = cookies.signed[key]
       cache[key] ||= {}
       if cache[key][:packed_data] == data_from_cookies # checks whether cache is in sync with cookies
         result = cache[key][:unpacked_data] # reads from cache
@@ -145,27 +145,8 @@ module CookiesManager
     end
 
     def unpack(data)
-      Marshal.load(ActiveSupport::Gzip.decompress(Base64.decode64(data)))
+      Marshal.load(ActiveSupport::Gzip.decompress(Base64.decode64(data))) unless data.nil?
     end    
-    
-    #=================#
-    #== AOP Filters ==#
-    #=================#
-    
-    # Since Aquarium sets the arities of observered methods to -1, we need to save the methods arities in a hash declared as a class variable
-    self.instance_methods(false).each { |method| (@method_arities ||= {})[method.to_sym] = instance_method(method).arity }
-    
-    around :methods => [:read, :write, :delete] do |join_point, object, *args|
-      key = (args[0] = args[0].to_s) # we should stick with string keys since the cookies hash does not support indifferent access (i.e. :foo and "foo" are different keys), although this has changed in rails 3.1
-      opts = args[last_arg_index(join_point.method_name)] # retrieve the options arg (last argument)
-      opts.symbolize_keys! if opts.is_a?(Hash)
-      join_point.proceed(*args)
-    end
-
-    # Returns the index of the last arg in the method signature
-    def self.last_arg_index(method_name)
-      instance_eval { @method_arities[method_name] }.abs - 1
-    end
     
   end
     

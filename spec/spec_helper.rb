@@ -1,6 +1,6 @@
-require 'rubygems'
 require 'bundler/setup'
 require 'action_controller'
+require 'active_support/all'
 Bundler.require(:default)
 
 RSpec.configure do |config|
@@ -11,19 +11,11 @@ RSpec.configure do |config|
   config.mock_with :rr
 end
 
- # A test controller with a cookies hash (this works in rails 2.3.14 but needs to be adapted for versions of rails >= 3.x.x)
 class TestController < ActionController::Base
 
-  def request 
-    @request ||= ActionController::Request.new('test')
-  end
-  
-  def response
-    @response ||= ActionController::Response.new
-  end  
-  
-  def initialize
-    self.cookies = ActionController::CookieJar.new(self)
+  def initialize(*args)
+    super(*args)
+    self.cookies = ActionDispatch::Cookies::CookieJar.new('b57121a9239fe9e55d46c534c7af7218')
   end
   
   protected

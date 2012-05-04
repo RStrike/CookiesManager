@@ -4,16 +4,20 @@ CookiesManager is a simple tool that provides a convenient way to manage any kin
 - The data you store in the cookies is automatically marshalled, zipped, and base64-encoded.
 - The data you ask to retrieve from the cookies is read from a cache, which spares the need for reverse transformation as long as the cache is in sync with the cookies. When the cache is out of sync, CookiesManager automatically resynchronizes the cache by reading the data from the cookies and processing reverse transformation (base64-decoding, unzipping, unmarshalling).
 - The cache is defined somehow at the controller instance level. Thus, each HTTP request has its own cache for its whole lifetime.
+- Cookies are signed to prevent tampering.
 
 == Installation
 
-In <b>Rails 2</b>, add this to your environment.rb file.
+In <b>Rails 3</b>, add this to your environment.rb file.
 
-  config.gem "cookies_manager"
-
-Alternatively, you can install it as a plugin:
-
-  script/plugin install git@github.com:RStrike/CookiesManager.git
+  gem 'cookies_manager'
+  
+Then set a secret token in your config/secret_token.rb file.
+  # Your secret key for verifying the integrity of signed cookies.
+  # If you change this key, all old signed cookies will become invalid!
+  # Make sure the secret is at least 30 characters and all random,
+  # no regular words or you'll be exposed to dictionary attacks.
+  <Your Application Name>::Application.config.secret_token = 'your secret token' 
 
 == Getting started
 
@@ -55,19 +59,20 @@ than the session length, such as user display preferences.
 
 == Important notes
 
+- Do not store sensitive data in your cookies. Although all cookies are signed, those are not encrypted.
 - If your application is multi-threaded, using CookiesManager is threadsafe as long as your threads refer the same CookiesManager instance.
 - Unless you know what you are really doing, do not store large data in your cookies, since these are included in HTTP request headers.
 - Do not store model objects in cookies (nor in session). For more explanation, check {Ryan Bates's screencast about dangers of model in session}[http://railscasts.com/episodes/13-dangers-of-model-in-session].
 - If you really need to deal with an object, I recommend to store it in your database and set a simple related token in your the cookies.
-- Until I add some integrity-check mechanisms against cookies tampering, do not use this version of the gem on your production environment, unless you really trust your users.
 
 == Running the tests
 
 RSpec 2 is used for testing. To get the specs running, check {spec/README}[https://github.com/RStrike/CookiesManager/blob/master/spec/README.rdoc].
 
-== Coming up next
-- Adapt the gem to support Ruby 1.9.x and Rails 3.
-- Add integrity-checking/encryption mechanisms
+== Compatibility
+Tested on:
+- Ruby 1.9.3
+- Rails 3.2.3
 
 == Changes
 

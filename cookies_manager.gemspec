@@ -18,8 +18,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'actionpack', '~> 2.3.14'
-  s.add_dependency 'aquarium', '~> 0.4.4'
-  s.add_development_dependency 'rspec', '~> 2.7.0'
+  s.add_dependency 'actionpack', '~> 3.2.3'
+  s.add_dependency 'activesupport', '~> 3.2.3'
+  s.add_development_dependency 'rspec', '~> 2.9.0'
   s.add_development_dependency 'rr', '~> 1.0.4'  
 end

@@ -1,3 +1,8 @@
+0.3.0   (May 04, 2012)
+
+* Adapted to Ruby 1.9.3 and Rails 3.2.3
+* Now using signed cookies to prevent tampering
+
 0.2.x (Nov 08, 2011)
 
 * Simplified usage: in reads operations, unpacks the data by default

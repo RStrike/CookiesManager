@@ -8,14 +8,7 @@
   bundle
   rake
 
-Some of the specs, covering race conditions in multithreaded contexts, pause in purpose some threads for a few seconds through AOP to test critical sections. Those "slow" tests can be easily skipped by passing +skip_slow+ as an argument to the +rake+ command:
-
-  rake skip_slow
-
-However, I recommend running all the specs whenever you change the code.
-
 == Ruby versions
 
-Currently, the specs require Ruby 1.8.7.
+Currently, the specs require Ruby 1.9.3
 
-Ruby 1.9.x support is coming up next.  
