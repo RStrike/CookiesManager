@@ -49,7 +49,7 @@ module CookiesManager
     #    
     #    array_data = {:some_item => "an item", :some_array => ['This', 'is', 'an', 'array']}
     #    #store the data in the cookies as a base64-encoded string, for one hour:
-    #    len_bytes1 = cookies_manager.write('key_for_my_array', data, :expires => 1.hour.from_now)
+    #    len_bytes1 = cookies_manager.write('key_for_my_array', array_data, :expires => 1.hour.from_now)
     #
     #    simple_data = "a simple string"
     #    # store the data as in in the cookies, and keep it as long as the browser remains open:
